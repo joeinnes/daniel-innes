@@ -8,7 +8,7 @@
 <div class="image-container {loaded && 'image-loaded'}">
 	{#if id}
 		<img
-			on:load={() => loaded = true}
+			on:load={() => (loaded = true)}
 			src="https://cdn.statically.io/img/api.traist.co.uk/f=auto&w=200/assets/{id}.jpg"
 			class={loaded ? 'block' : 'hidden'}
 		/>

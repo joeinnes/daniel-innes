@@ -8,12 +8,16 @@
 
 	let page = 1;
 	let me = null;
+	let canPost = false;
+
 	const init = async () => {
 		try {
 			me = await directus.users.me.read();
 			if (!me) {
 				goto('/login');
 			}
+
+			canPost = me?.email === 'joe@traist.co.uk' || me?.email === 'ada@innes.hu';
 			const initialPosts = await directus.items('posts').readByQuery({ ...defaultQuery, page });
 			$posts = initialPosts.data;
 		} catch (e) {
@@ -27,7 +31,10 @@
 <div>
 	<a href="/"><h1 class="page-title">{import.meta.env.VITE_SITE_NAME}</h1></a>
 
-	<PostControls />
+	{#if canPost}
+		<PostControls />
+	{/if}
+
 	{#each $posts as post}
 		<article>
 			{#if post.title}

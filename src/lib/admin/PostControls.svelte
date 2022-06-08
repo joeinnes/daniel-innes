@@ -10,13 +10,16 @@
 	import Quote from '../icons/Quote.svelte';
 	import posts from '../stores/posts';
 
+	let editStart = new Date();
+	console.log(editStart.getTimezoneOffset())
+	editStart.setMinutes(editStart.getMinutes() - editStart.getTimezoneOffset());
 
 	let modal = null;
 	let post = {
 		type: 'none',
 		title: '',
 		text: '',
-		post_date: new Date().toISOString().slice(0, -8),
+		post_date: editStart.toISOString().slice(0, -8),
 		visibility: 'friends',
 		files: []
 	};
@@ -30,11 +33,14 @@
 	};
 
 	const resetPost = () => {
+		editStart = new Date();
+		editStart.setMinutes(editStart.getMinutes() - editStart.getTimezoneOffset());
+
 		post = {
 			type: 'none',
 			title: '',
 			text: '',
-			post_date: new Date().toISOString().slice(0, -8),
+			post_date: editStart.toISOString().slice(0, -8),
 			visibility: 'friends',
 			files: []
 		};
@@ -53,25 +59,25 @@
 		loading = true;
 		const fileForm = e.currentTarget;
 		const form = new FormData(fileForm);
-    const res = await directus.files.createOne(form);
-    if (Array.isArray(res)) {
-      post.files = [...post.files, ...res];
-    }
-    post.files = [...post.files, res];
+		const res = await directus.files.createOne(form);
+		if (Array.isArray(res)) {
+			post.files = [...post.files, ...res];
+		}
+		post.files = [...post.files, res];
 		loading = false;
 	};
 
 	const submitForm = async () => {
 		submitting = true;
-		post.post_date = new Date(post.post_date);
-		post.files = post.files.map(el => ({ directus_files_id: el.id}));
+		post.post_date = new Date(post.post_date + ' UTC');
+		post.files = post.files.map((el) => ({ directus_files_id: el.id }));
 		try {
 			const res = await directus.items('posts').createOne(post);
 			if (Array.isArray(res)) {
-				$posts = [...$posts, ...res]
+				$posts = [...$posts, ...res];
 				resetPost();
 			} else {
-				$posts = [...$posts, res]
+				$posts = [...$posts, res];
 				resetPost();
 			}
 		} catch (e) {
@@ -79,11 +85,10 @@
 		} finally {
 			submitting = false;
 		}
-	}
+	};
 
 	$: post.type !== 'none' ? !modal?.open && modal?.showModal() : modal?.open && modal?.close();
 	$: shouldDisable = submitting || loading;
-	
 </script>
 
 <section>
@@ -157,7 +162,7 @@
 					<div class="meta">
 						<label for="post_date">
 							Post Date
-							<input type="post_datetime-local" bind:value={post.post_date} name="post_date" />
+							<input type="datetime-local" bind:value={post.post_date} name="post_date" />
 						</label>
 						<label for="visibility"
 							>Visibility
@@ -179,7 +184,13 @@
 							fullWidth={true}>Reset</Button
 						>
 
-						<Button type="submit" colour="emerald" clickHandler={submitForm} fullWidth={true} disabled={shouldDisable}>
+						<Button
+							type="submit"
+							colour="emerald"
+							clickHandler={submitForm}
+							fullWidth={true}
+							disabled={shouldDisable}
+						>
 							Submit
 						</Button>
 					</div>
@@ -225,7 +236,8 @@
 			@apply p-4;
 
 			input,
-			textarea, select {
+			textarea,
+			select {
 				@apply block w-full my-4 p-2 border-b-2 border-transparent focus:border-emerald-200 focus:outline-none;
 			}
 
@@ -256,9 +268,10 @@
 				label {
 					@apply w-full font-bold;
 
-          input, select {
-            @apply mt-1 rounded;
-          }
+					input,
+					select {
+						@apply mt-1 rounded;
+					}
 				}
 			}
 		}

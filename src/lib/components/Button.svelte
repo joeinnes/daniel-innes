@@ -17,7 +17,6 @@
 			clickHandler = thisClickHandler;
 		}
 	}
-	
 </script>
 
 <button
