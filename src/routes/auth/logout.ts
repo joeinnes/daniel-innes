@@ -1,11 +1,11 @@
-import type { RequestEvent } from "@sveltejs/kit";
+import type { CustomRequestEvent } from "$lib/types/types";
 
 import bcrypt from "bcryptjs";
 import jwt from "$lib/auth/jwt";
 import { db } from "$lib/db/db";
 import { serialize } from "cookie";
 
-export const get = async ({ locals }: RequestEvent) => {
+export const get = async ({ locals }: CustomRequestEvent) => {
   if (locals && locals.user) {
     return {
       status: 302,
@@ -25,7 +25,7 @@ export const get = async ({ locals }: RequestEvent) => {
   }
 }
 
-export const post = async ({ request }: RequestEvent) => {
+export const post = async ({ request }: CustomRequestEvent) => {
   try {
     const submittedData = await request.formData();
     const email = submittedData.get('email');

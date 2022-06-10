@@ -3,6 +3,7 @@
 </script>
 
 <div class="login-container">
+	<h1>Register</h1>
 	<form method="post">
 		<label>Name <input type="text" id="name" name="name" placeholder="Joe Innes" /> </label>
 		<label

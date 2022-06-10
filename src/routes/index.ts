@@ -1,36 +1,46 @@
-import type { RequestEvent } from "@sveltejs/kit";
 import { db } from '$lib/db/db';
-import type { Prisma } from '@prisma/client';
+import type { User, Prisma } from '@prisma/client';
 
+import { Role } from '$lib/types/types';
+import type { CustomRequestEvent } from '$lib/types/types';
 
-const limit = process.env.POSTS_PER_PAGE || 15;
+interface Query {
+  visibility?: Role
+}
 
-export const get = async ({ url, locals }: RequestEvent) => {
+const limit = parseInt((process.env.POSTS_PER_PAGE || '15'), 10);
+
+export const get = async ({ url, locals }: CustomRequestEvent) => {
   const { user } = locals;
-  const page = url.searchParams.get('page') || 1;
-  let query = { visibility: 'public' };
-  if (user?.role === 'admin') {
+  const page = parseInt((url?.searchParams.get('page') || '1'), 10);
+  let query: Query = { visibility: Role.Public };
+  if (user?.role === Role.Admin) {
     delete query.visibility;
   } else if (user?.role) {
     query.visibility = user.role;
   }
 
-  const posts = await db.post.findMany({
+  const fullQuery: Prisma.PostFindManyArgs = {
     take: limit,
     skip: (page - 1) * limit,
+    include: {
+      files: true
+    },
     where: query, orderBy: {
       date_created: 'desc'
     }
-  });
+  }
+
+  const posts: User[] = await db.post.findMany(fullQuery);
 
   return {
     body: { user, posts }
   }
 }
 
-export const post = async ({ request, locals }) => {
+export const post = async ({ request, locals }: CustomRequestEvent) => {
   const { user } = locals;
-  if (user?.role !== 'admin') {
+  if (user?.role !== Role.Admin) {
     throw new Error('Unauthorised');
   }
 

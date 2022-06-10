@@ -1,8 +1,10 @@
 import { db } from '$lib/db/db'
 
+import type { Prisma } from '@prisma/client';
+
 export async function get() {
   try {
-    let posts = [];
+    let posts: Prisma.PostFindManyArgs | [] = [];
     async function main() {
       posts = await db.post.findMany()
     }

@@ -1,10 +1,13 @@
-<script>
-	import Cog from '../lib/icons/Cog.svelte';
-	import PostControls from '../lib/admin/PostControls.svelte';
-	import postsStore from '../lib/stores/posts';
+<script lang="ts">
+	import type { Prisma, Post, File } from '@prisma/client';
+	import Cog from '$lib/icons/Cog.svelte';
+	import PostControls from '$lib/admin/PostControls.svelte';
+	import postsStore from '$lib/stores/posts';
+	import type { PostWithFiles } from '$lib/stores/posts';
+	import type { User } from '$lib/types/types';
 
-	export let user;
-	export let posts;
+	export let user: User | null;
+	export let posts: PostWithFiles[];
 
 	let page = 1;
 	let canPost = user?.role === 'admin';
@@ -17,8 +20,10 @@
 				accept: 'application/json'
 			}
 		});
-		const data = await res.json();
-		console.log(data);
+		const data: {
+			posts: PostWithFiles[];
+			user: User;
+		} = await res.json();
 		posts = [...$postsStore, ...data.posts];
 	};
 </script>
@@ -39,7 +44,7 @@
 			{#if post.type === 'photo'}
 				{#each post.files as photo}
 					<img
-						src="https://cdn.statically.io/img/api.traist.co.uk/f=auto&w=600/assets/{photo.directus_files_id}.jpg"
+						src="https://cdn.statically.io/img/api.traist.co.uk/f=auto&w=600/assets/{photo.s3id}.jpg"
 						alt="No alt text provided, sorry."
 					/>
 				{/each}
@@ -65,7 +70,7 @@
 				{/each}
 			{/if}
 			{#if post.post_date}
-				<small class="post-date" x-show="post.post_date"
+				<small class="post-date"
 					>{new Date(post.post_date).toLocaleDateString('en-GB', {
 						weekday: 'short',
 						day: '2-digit',
