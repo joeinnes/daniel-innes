@@ -1,11 +1,12 @@
-<script>
-	export let Icon;
+<script lang="ts">
+	import type { SvelteComponent } from 'svelte';
+	export let Icon: SvelteComponent;
 	export let clickHandler = () => {};
 	export let colour = 'emerald';
 </script>
 
 <div on:click={clickHandler} class="action-button action-button-{colour}">
-	<Icon />
+	<svelte:component this={Icon} />
 </div>
 
 <style lang="scss">

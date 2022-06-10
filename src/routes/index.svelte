@@ -1,10 +1,9 @@
 <script lang="ts">
-	import type { Prisma, Post, File } from '@prisma/client';
+	import type { Prisma, Post, File, User } from '@prisma/client';
 	import Cog from '$lib/icons/Cog.svelte';
 	import PostControls from '$lib/admin/PostControls.svelte';
 	import postsStore from '$lib/stores/posts';
 	import type { PostWithFiles } from '$lib/stores/posts';
-	import type { User } from '$lib/types/types';
 
 	export let user: User | null;
 	export let posts: PostWithFiles[];

@@ -1,11 +1,13 @@
 import { db } from '$lib/db/db';
-import type { User, Prisma } from '@prisma/client';
+import type { User, Query, Prisma } from '@prisma/client';
 
-import { Role } from '$lib/types/types';
 import type { CustomRequestEvent } from '$lib/types/types';
 
-interface Query {
-  visibility?: Role
+enum Role {
+  Public = 'public',
+  Friends = 'friends',
+  Family = 'family',
+  Admin = 'admin'
 }
 
 const limit = parseInt((process.env.POSTS_PER_PAGE || '15'), 10);

@@ -1,10 +1,14 @@
 import type { RequestEvent } from "@sveltejs/kit"
 
-export enum Role {
+enum Role {
   Public = 'public',
   Friends = 'friends',
   Family = 'family',
   Admin = 'admin'
+}
+
+interface Query {
+  visibility?: Role
 }
 
 interface User {

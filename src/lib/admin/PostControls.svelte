@@ -1,5 +1,4 @@
-<script>
-	import { directus, defaultQuery } from '../directus';
+<script lang="ts">
 	import ActionButton from './ActionButton.svelte';
 	import Button from '../components/Button.svelte';
 	import PreviewImage from './PreviewImage.svelte';
@@ -10,11 +9,25 @@
 	import Quote from '../icons/Quote.svelte';
 	import posts from '../stores/posts';
 
+	import type { Post } from '@prisma/client';
+
+	interface SerialisablePost extends Omit<Post, 'post_date'> {
+		post_date: string;
+		files: string[];
+	}
 	let editStart = new Date();
 	editStart.setMinutes(editStart.getMinutes() - editStart.getTimezoneOffset());
+	enum Type {
+		Text = 'text',
+		Photo = 'photo',
+		Video = 'video',
+		Audio = 'audio',
+		Quote = 'quote',
+		None = 'none'
+	}
 
-	let modal = null;
-	let post = {
+	let modal: HTMLElement | null = null;
+	let post: Partial<SerialisablePost> = {
 		type: 'none',
 		title: '',
 		text: '',
@@ -26,7 +39,7 @@
 	let submitting = false;
 	let shouldDisable = false;
 
-	const setPostType = (newType) => {
+	const setPostType = (newType: Type) => {
 		resetPost();
 		post.type = newType;
 	};
@@ -54,15 +67,21 @@
 		quote: 'bg-rose-100 shadow-rose-500/20'
 	};
 
-	const uploadFiles = async (e) => {
+	const uploadFiles = async (e: Event) => {
 		loading = true;
-		const fileForm = e.currentTarget;
+		const target = e.target as HTMLInputElement;
+		const fileForm = target.form;
+		if (!fileForm) {
+			throw new Error('No form found');
+		}
 		const form = new FormData(fileForm);
-		const res = await directus.files.createOne(form);
+		console.log(form);
+		await fetch('/api/upload', { method: 'POST', body: form });
+		/*
 		if (Array.isArray(res)) {
 			post.files = [...post.files, ...res];
 		}
-		post.files = [...post.files, res];
+		post.files = [...post.files, res];*/
 		loading = false;
 	};
 
