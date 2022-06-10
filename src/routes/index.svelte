@@ -1,41 +1,35 @@
 <script>
-	import { directus, defaultQuery } from '../lib/directus';
-	import { goto } from '$app/navigation';
-	import { browser } from '$app/env';
 	import Cog from '../lib/icons/Cog.svelte';
 	import PostControls from '../lib/admin/PostControls.svelte';
-	import posts from '../lib/stores/posts';
+	import postsStore from '../lib/stores/posts';
+
+	export let user;
+	export let posts;
 
 	let page = 1;
-	let me = null;
-	let canPost = false;
+	let canPost = user?.role === 'admin';
 
-	const init = async () => {
-		try {
-			me = await directus.users.me.read();
-			if (!me) {
-				goto('/login');
+	$postsStore = posts;
+	const loadMore = async function () {
+		page++;
+		const res = await fetch(`/?page=${page}`, {
+			headers: {
+				accept: 'application/json'
 			}
-
-			canPost = me?.email === 'joe@traist.co.uk' || me?.email === 'ada@innes.hu';
-			const initialPosts = await directus.items('posts').readByQuery({ ...defaultQuery, page });
-			$posts = initialPosts.data;
-		} catch (e) {
-			console.error(e);
-			goto('/login');
-		}
+		});
+		const data = await res.json();
+		console.log(data);
+		posts = [...$postsStore, ...data.posts];
 	};
-	browser && init();
 </script>
 
 <div>
 	<a href="/"><h1 class="page-title">{import.meta.env.VITE_SITE_NAME}</h1></a>
-
 	{#if canPost}
 		<PostControls />
 	{/if}
 
-	{#each $posts as post}
+	{#each $postsStore as post}
 		<article>
 			{#if post.title}
 				<h2 class="post-title">{post.title}</h2>{/if}
@@ -80,7 +74,13 @@
 					})}</small
 				>{/if}
 		</article>
+	{:else}
+		<article>No posts found.</article>
 	{/each}
+	<button on:click={loadMore}>Load More</button>
+	{#if user}
+		<a href="/auth/logout">Log out</a>
+	{/if}
 </div>
 
 <style lang="scss">

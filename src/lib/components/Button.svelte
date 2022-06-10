@@ -7,6 +7,7 @@
 	let shouldDisable = disabled;
 	let thisColour = colour;
 	let thisClickHandler = clickHandler;
+
 	$: {
 		shouldDisable = disabled;
 		if (disabled) {
@@ -20,7 +21,7 @@
 </script>
 
 <button
-	on:click|preventDefault={clickHandler}
+	on:click={clickHandler}
 	class="button button-{colour} {fullWidth && 'w-full'}"
 	disabled={shouldDisable}
 	{type}

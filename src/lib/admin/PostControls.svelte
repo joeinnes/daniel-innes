@@ -11,7 +11,6 @@
 	import posts from '../stores/posts';
 
 	let editStart = new Date();
-	console.log(editStart.getTimezoneOffset())
 	editStart.setMinutes(editStart.getMinutes() - editStart.getTimezoneOffset());
 
 	let modal = null;
@@ -72,7 +71,7 @@
 		post.post_date = new Date(post.post_date + ' UTC');
 		post.files = post.files.map((el) => ({ directus_files_id: el.id }));
 		try {
-			const res = await directus.items('posts').createOne(post);
+			const res = await fetch('/', { method: 'POST', body: JSON.stringify(post) });
 			if (Array.isArray(res)) {
 				$posts = [...$posts, ...res];
 				resetPost();
