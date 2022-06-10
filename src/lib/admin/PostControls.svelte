@@ -75,8 +75,9 @@
 			throw new Error('No form found');
 		}
 		const form = new FormData(fileForm);
-		console.log(form);
-		await fetch('/api/upload', { method: 'POST', body: form });
+		const res = await fetch('/api/upload', { method: 'POST', body: form });
+		const resJson = await res.json();
+		console.log(resJson);
 		/*
 		if (Array.isArray(res)) {
 			post.files = [...post.files, ...res];
