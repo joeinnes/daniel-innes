@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { browser } from '$app/env';
+	import { spring } from 'svelte/motion';
 	import ActionButton from './ActionButton.svelte';
 	import Button from '../components/Button.svelte';
 	import PreviewImage from './PreviewImage.svelte';
@@ -10,6 +12,9 @@
 	import posts from '../stores/posts';
 
 	import type { Post } from '@prisma/client';
+
+	const dialogSize = spring(0);
+	const dialogOpacity = spring(0);
 
 	interface SerialisablePost extends Omit<Post, 'post_date'> {
 		post_date: string;
@@ -26,7 +31,7 @@
 		None = 'none'
 	}
 
-	let modal: HTMLElement | null = null;
+	let modal: HTMLDialogElement | null = null;
 	let post: Partial<SerialisablePost> = {
 		type: 'none',
 		title: '',
@@ -77,19 +82,20 @@
 		const form = new FormData(fileForm);
 		const res = await fetch('/api/upload', { method: 'POST', body: form });
 		const resJson = await res.json();
-		console.log(resJson);
-		/*
-		if (Array.isArray(res)) {
-			post.files = [...post.files, ...res];
+
+		if (Array.isArray(resJson)) {
+			post.files = [...post.files, ...resJson];
+		} else {
+			post.files = [...post.files, resJson];
 		}
-		post.files = [...post.files, res];*/
 		loading = false;
+		console.log(post.files);
 	};
 
 	const submitForm = async () => {
 		submitting = true;
 		post.post_date = new Date(post.post_date + ' UTC');
-		post.files = post.files.map((el) => ({ directus_files_id: el.id }));
+		// post.files = post.files.map((el) => ({ directus_files_id: el.id }));
 		try {
 			const res = await fetch('/', { method: 'POST', body: JSON.stringify(post) });
 			if (Array.isArray(res)) {
@@ -106,20 +112,44 @@
 		}
 	};
 
-	$: post.type !== 'none' ? !modal?.open && modal?.showModal() : modal?.open && modal?.close();
+	const openModal = () => {
+		if (modal) {
+			window.requestAnimationFrame(() => {
+				modal?.showModal();
+				dialogOpacity.set(1);
+				dialogSize.set(1);
+			});
+		}
+	};
+
+	const closeModal = () => {
+		if (modal) {
+			window.requestAnimationFrame(async () => {
+				await Promise.any([dialogSize.set(0), dialogOpacity.set(0)]);
+				modal?.close();
+			});
+		}
+	};
+
+	$: post.type !== 'none' ? openModal() : closeModal();
 	$: shouldDisable = submitting || loading;
 </script>
 
 <section>
 	<div>
 		<div class="button-panel">
-			<ActionButton Icon={Text} clickHandler={() => setPostType('text')} colour="emerald" />
-			<ActionButton Icon={Photo} clickHandler={() => setPostType('photo')} colour="amber" />
-			<ActionButton Icon={Video} clickHandler={() => setPostType('video')} colour="sky" />
-			<ActionButton Icon={Audio} clickHandler={() => setPostType('audio')} colour="fuchsia" />
-			<ActionButton Icon={Quote} clickHandler={() => setPostType('quote')} colour="rose" />
+			<ActionButton Icon={Text} clickHandler={() => setPostType(Type.Text)} colour="emerald" />
+			<ActionButton Icon={Photo} clickHandler={() => setPostType(Type.Photo)} colour="amber" />
+			<ActionButton Icon={Video} clickHandler={() => setPostType(Type.Video)} colour="sky" />
+			<ActionButton Icon={Audio} clickHandler={() => setPostType(Type.Audio)} colour="fuchsia" />
+			<ActionButton Icon={Quote} clickHandler={() => setPostType(Type.Quote)} colour="rose" />
 		</div>
-		<dialog bind:this={modal} on:click={resetPost}>
+		<div class="styleable-backdrop" style="opacity:{Math.min($dialogOpacity, 0.8)}" />
+		<dialog
+			bind:this={modal}
+			on:click={resetPost}
+			style="transform: scale({$dialogSize}); opacity:{$dialogOpacity}"
+		>
 			<article class="rounded" on:click|stopPropagation>
 				<header class={backgrounds[post.type]}>
 					<div class="container">
@@ -155,10 +185,10 @@
 								/>
 							</form>
 
-							{#if post.files.length || loading}
+							{#if post?.files?.length || loading}
 								<div class="preview-grid">
 									{#each post.files as file}
-										<PreviewImage id={file.id} />
+										<PreviewImage id={file} />
 									{/each}
 
 									{#if loading}
@@ -231,11 +261,13 @@
 	.action-button-emerald {
 		@apply bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/20 shadow-lg;
 	}
-
+	.styleable-backdrop {
+		@apply fixed top-0 left-0 right-0 bottom-0 bg-gray-900 pointer-events-none;
+	}
 	dialog {
 		@apply rounded p-0 max-w-prose w-full;
 		&::backdrop {
-			@apply fixed top-0 left-0 right-0 bottom-0 bg-gray-900 opacity-80;
+			@apply hidden;
 		}
 
 		header {

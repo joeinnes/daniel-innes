@@ -24,8 +24,13 @@ export const post = async ({ request, locals }: CustomRequestEvent) => {
       const hashSum = crypto.createHash('sha256');
       hashSum.update(dataBuffer);
       const hex = hashSum.digest('hex');
-
-      fs.writeFileSync(`./data/files/${hex}`, dataBuffer)
+      fs.writeFileSync(`./public/files/${hex}`, dataBuffer)
+      await db.file.create({
+        data: {
+          s3id: hex,
+          name: file.name,
+        }
+      });
       if (Array.isArray(res.body)) {
         res.body.push(hex);
       } else {
@@ -33,11 +38,13 @@ export const post = async ({ request, locals }: CustomRequestEvent) => {
       }
     }
   } catch (error) {
+    console.error(error)
     res = {
       status: 500,
     }
   } finally {
     db.$disconnect();
   }
+  console.log(res)
   return res;
 }

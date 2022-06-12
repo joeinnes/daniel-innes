@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { Prisma, Post, File, User } from '@prisma/client';
-	import Cog from '$lib/icons/Cog.svelte';
+	import Image from '$lib/components/Image.svelte';
+	import Video from '$lib/components/Video.svelte';
 	import PostControls from '$lib/admin/PostControls.svelte';
 	import postsStore from '$lib/stores/posts';
 	import type { PostWithFiles } from '$lib/stores/posts';
@@ -42,30 +43,11 @@
 			{/if}
 			{#if post.type === 'photo'}
 				{#each post.files as photo}
-					<img
-						src="https://cdn.statically.io/img/api.traist.co.uk/f=auto&w=600/assets/{photo.s3id}.jpg"
-						alt="No alt text provided, sorry."
-					/>
+					<Image id={photo.s3id} />
 				{/each}
 			{:else if post.type === 'video'}
 				{#each post.files as video}
-					<div
-						class="
-                          video-placeholder
-                        "
-					>
-						<Cog classToApply="h-16 w-16 stroke-1 stroke-emerald-700" />
-					</div>
-
-					<!--{/* <video
-                        src="https://api.traist.co.uk/assets/{video.directus_files_id}"
-                        class="
-                          post-video
-                        "
-                        controls
-                        autoplay
-                        muted
-                      />-*/}-->
+					<Video id={video.s3id} />
 				{/each}
 			{/if}
 			{#if post.post_date}
@@ -100,25 +82,8 @@
 		.post-text {
 			@apply whitespace-pre-wrap;
 		}
-		.video-placeholder {
-			@apply aspect-video
-                          my-4
-                          shadow-lg shadow-emerald-500/20
-                          flex flex-col
-                          justify-center
-                          items-center
-                          bg-emerald-50;
-		}
 		.post-date {
 			@apply text-emerald-600;
-		}
-
-		.post-video {
-			@apply w-full aspect-video my-4 shadow-lg shadow-emerald-500/20;
-		}
-
-		img {
-			@apply w-full h-auto my-4 shadow-lg shadow-emerald-500/20;
 		}
 	}
 </style>

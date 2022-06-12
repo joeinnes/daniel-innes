@@ -1,7 +1,8 @@
 import { db } from '$lib/db/db';
-import type { User, Query, Prisma } from '@prisma/client';
+import type { Post, File, Prisma } from '@prisma/client';
 
 import type { CustomRequestEvent } from '$lib/types/types';
+import sanitizeHtml from 'sanitize-html';
 
 enum Role {
   Public = 'public',
@@ -15,7 +16,7 @@ const limit = parseInt((process.env.POSTS_PER_PAGE || '15'), 10);
 export const get = async ({ url, locals }: CustomRequestEvent) => {
   const { user } = locals;
   const page = parseInt((url?.searchParams.get('page') || '1'), 10);
-  let query: Query = { visibility: Role.Public };
+  let query: Prisma.PostWhereInput = { visibility: Role.Public };
   if (user?.role === Role.Admin) {
     delete query.visibility;
   } else if (user?.role) {
@@ -33,10 +34,24 @@ export const get = async ({ url, locals }: CustomRequestEvent) => {
     }
   }
 
-  const posts: User[] = await db.post.findMany(fullQuery);
+  interface PostsFromDb extends Post {
+    [key: string]: any;
+  }
+  const posts: PostsFromDb[] = await db.post.findMany(fullQuery);
+
+  const safePosts = posts.map(post => {
+    for (const key in post) {
+      if (!post[key] || key === 'files') continue;
+      post[key] = sanitizeHtml(post[key], {
+        allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img']),
+        allowedAttributes: { img: ['src', 'srcset', 'alt', 'title', 'width', 'height', 'loading'] }
+      })
+    }
+    return post;
+  });
 
   return {
-    body: { user, posts }
+    body: { user, posts: safePosts }
   }
 }
 
@@ -51,6 +66,9 @@ export const post = async ({ request, locals }: CustomRequestEvent) => {
   }
 
   const submittedData = await request.json();
+  const filesToConnect = submittedData.files.map((file: File) => ({
+    s3id: file
+  }));
   const postToCreate: Prisma.PostCreateInput
     = {
     ...submittedData,
@@ -66,7 +84,9 @@ export const post = async ({ request, locals }: CustomRequestEvent) => {
     },
     date_created: submittedData.date_created || new Date(),
     post_date: submittedData.post_date || new Date(),
-    files: submittedData?.files.length ? submittedData.files : undefined
+    files: {
+      connect: filesToConnect
+    }
   }
   const post = await db.post.create({ data: postToCreate });
   return {
