@@ -134,7 +134,7 @@ export const patch = async ({ request, locals }: CustomRequestEvent) => {
       date_created: new Date(submittedData.date_created),
       post_date: new Date(submittedData.post_date),
       files: {
-        connect: filesToConnect
+        set: filesToConnect
       }
     }
     const post = await db.post.update({ where: { id: targetId }, data: postToUpdate });
