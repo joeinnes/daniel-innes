@@ -1,12 +1,6 @@
 import { writable } from 'svelte/store';
-import { Prisma } from '@prisma/client';
+import type { Post } from '@prisma/client';
 
-const postsWithFiles = Prisma.validator<Prisma.PostArgs>()({
-  include: { files: true }
-});
-
-export type PostWithFiles = Prisma.PostGetPayload<typeof postsWithFiles>;
-
-const posts = writable<PostWithFiles[]>([]);
+const posts = writable<Partial<Post>[]>([]);
 
 export default posts;

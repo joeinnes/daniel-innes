@@ -1,6 +1,5 @@
 <script lang="ts">
 	export let id = '';
-	let video: HTMLVideoElement;
 	let show = false;
 	import Cog from '$lib/icons/Cog.svelte';
 </script>
