@@ -1,0 +1,38 @@
+version: '3.9'
+
+services:
+  web:
+    build: .
+    ports:
+      - '3000:3000'
+    env_file:
+      - .env.docker
+    volumes:
+      - ${PWD}/data:/app/data
+  litestream:
+    image: litestream/litestream
+    restart: unless-stopped
+    volumes:
+      - ${PWD}/data:/data
+      - ${PWD}/litestream.yml:/etc/litestream.yml
+    env_file:
+      - .env.docker
+    command: replicate
+  backup_files:
+    container_name: backups
+    image: peterrus/s3-cron-backup
+    restart: unless-stopped
+    environment:
+      - AWS_ACCESS_KEY_ID=${S3_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${S3_SECRET_ACCESS_KEY}
+      - AWS_DEFAULT_REGION=${S3_REGION}
+      - S3_BUCKET_URL=s3://${S3_BUCKET}/files
+      - CRON_SCHEDULE=38 */17 * * *
+      - BACKUP_NAME=backup
+      - S3_ENDPOINT=https://${S3_ENDPOINT}
+    volumes:
+      - ${PWD}/public:/data:ro
+volumes:
+  data:
+  litestream.yml:
+  public:

@@ -39,7 +39,7 @@
 	{#each $postsStore as post (post.id)}
 		<Post {post} />
 	{:else}
-		<article>No posts found.</article>
+		<article class="empty-state">No posts found.</article>
 	{/each}
 	<button on:click={loadMore}>Load More</button>
 	{#if user}
@@ -50,5 +50,9 @@
 <style lang="scss">
 	.page-title {
 		@apply font-heading font-bold text-6xl;
+	}
+
+	.empty-state {
+		@apply mt-12;
 	}
 </style>

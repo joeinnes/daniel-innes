@@ -1,0 +1,5 @@
+# ignore .git and .cache folders
+.git
+.cache
+.svelte-kit
+node_modules

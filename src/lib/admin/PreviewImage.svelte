@@ -2,20 +2,14 @@
 	import { currentPost } from '$lib/stores/currentPost';
 	import Cog from '../icons/Cog.svelte';
 	export let id = '';
+	export let alt = '';
 	export let loading = false;
+	let failed = false;
 	let loaded = false;
-	let image: HTMLImageElement;
 	const imageLoaded = () => {
 		loaded = true;
-		console.log('loaded');
-	};
-	const svgTest = () => {
-		const svg = image.innerHTML.trim();
-		const svgUrl = `data:image/svg+xml;base64,${window.btoa(svg)}`;
-		image.src = svgUrl;
 	};
 	const disconnectFile = () => {
-		console.log($currentPost.files, id);
 		$currentPost.files = $currentPost.files?.filter((file) => {
 			return file !== id;
 		});
@@ -26,12 +20,25 @@
 	{#if id}
 		<img
 			on:load={imageLoaded}
-			on:error={svgTest}
+			on:error={() => (failed = true)}
 			src="{import.meta.env.VITE_ASSET_BASE_PATH}/files/{id}"
 			class={loaded ? 'block' : 'hidden'}
 			alt="Sorry, no alt text"
-			bind:this={image}
 		/>
+		{#if failed}
+			<object
+				data="{import.meta.env.VITE_ASSET_BASE_PATH}/files/{id}"
+				type="image/svg+xml"
+				title={alt}
+			/>
+		{:else}
+			<img
+				on:error={() => (failed = true)}
+				src="{import.meta.env.VITE_ASSET_BASE_PATH}/files/{id}"
+				loading="lazy"
+				{alt}
+			/>
+		{/if}
 		<button class="disconnect" on:click|stopPropagation={disconnectFile}>&times;</button>
 	{/if}
 	<Cog classToApply={loaded ? 'hidden' : 'stroke-1 stroke-white animate-spin'} />
