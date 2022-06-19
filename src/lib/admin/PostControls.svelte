@@ -49,7 +49,7 @@
 	}
 
 	.button-panel {
-		@apply grid grid-cols-5 my-8 gap-4 items-center;
+		@apply flex justify-between my-8 gap-4 items-center;
 	}
 
 	.action-button-emerald {
