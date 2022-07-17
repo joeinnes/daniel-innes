@@ -24,21 +24,21 @@
 			class={loaded ? 'block' : 'hidden'}
 			alt="Sorry, no alt text"
 		/>
-		{#if failed}
-			<object
-				data="{import.meta.env.VITE_ASSET_BASE_PATH}/files/{id}"
-				type="image/svg+xml"
-				title={alt}
-			/>
-		{:else}
-			<img
-				on:error={() => (failed = true)}
-				src="{import.meta.env.VITE_ASSET_BASE_PATH}/files/{id}"
-				loading="lazy"
-				{alt}
-			/>
-		{/if}
 		<button class="disconnect" on:click|stopPropagation={disconnectFile}>&times;</button>
+	{:else}
+		<img
+			on:error={() => (failed = true)}
+			src="{import.meta.env.VITE_ASSET_BASE_PATH}/files/{id}"
+			loading="lazy"
+			{alt}
+		/>
+	{/if}
+	{#if failed}
+		<object
+			data="{import.meta.env.VITE_ASSET_BASE_PATH}/files/{id}"
+			type="image/svg+xml"
+			title={alt}
+		/>
 	{/if}
 	<Cog classToApply={loaded ? 'hidden' : 'stroke-1 stroke-white animate-spin'} />
 </div>

@@ -111,7 +111,10 @@
 <div class="styleable-backdrop" style="opacity:{Math.min($dialogOpacity, 0.8)}" />
 <dialog
 	bind:this={modal}
-	on:click={resetCurrentPost}
+	on:click={() => {
+		resetCurrentPost();
+		closeModal();
+	}}
 	style="transform: scale({$dialogSize}); opacity:{$dialogOpacity}"
 >
 	<article class="rounded" on:click|stopPropagation>
@@ -127,7 +130,10 @@
 					class="
                           close-button
                         "
-					on:click={resetCurrentPost}>&times;</a
+					on:click={() => {
+						resetCurrentPost();
+						closeModal();
+					}}>&times;</a
 				>
 			</div>
 		</header>
