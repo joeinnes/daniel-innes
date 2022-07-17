@@ -2,6 +2,7 @@
   "conventionalCommits.scopes": [
     "upstream",
     "admin",
-    "buttons"
+    "buttons",
+    "types"
   ]
 }

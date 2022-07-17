@@ -58,11 +58,14 @@
 
 	const submitForm = async () => {
 		submitting = true;
-		$currentPost.post_date = postDateAsString + 'Z';
+		let toPost = {
+			...$currentPost,
+			post_date: postDateAsString + 'Z'
+		};
 		try {
 			const res = await fetch('/', {
 				method: edit ? 'PATCH' : 'POST',
-				body: JSON.stringify($currentPost)
+				body: JSON.stringify(toPost)
 			});
 			await invalidate('/');
 			resetCurrentPost();

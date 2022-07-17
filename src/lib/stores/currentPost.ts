@@ -1,25 +1,15 @@
 import { writable } from 'svelte/store';
 import type { Post } from '@prisma/client';
 
-enum Type {
-  Text = 'text',
-  Photo = 'photo',
-  Video = 'video',
-  Audio = 'audio',
-  Quote = 'quote',
-  None = 'none'
-}
-
-interface SerialisablePost extends Omit<Post, 'post_date'> {
-  post_date: Date;
+export interface PostWithFiles extends Post {
   files: string[];
-  type: Type;
+  type: string;
 }
 
 const now = new Date();
 
 const initialState = {
-  type: Type.None,
+  type: 'none',
   title: '',
   text: '',
   post_date: now,
@@ -28,7 +18,7 @@ const initialState = {
   date_created: now,
 };
 
-export const currentPost = writable<Partial<SerialisablePost>>(initialState);
+export const currentPost = writable<Partial<PostWithFiles>>(initialState);
 
 export const resetCurrentPost = () => {
   currentPost.set(initialState);

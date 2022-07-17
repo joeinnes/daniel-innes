@@ -3,23 +3,10 @@
 	import Video from '$lib/components/Video.svelte';
 	import Audio from '$lib/components/Audio.svelte';
 	import type { Post } from '@prisma/client';
-	import { currentPost, resetCurrentPost } from '$lib/stores/currentPost';
+	import { currentPost, type PostWithFiles } from '$lib/stores/currentPost';
 	import { invalidate } from '$app/navigation';
 
-	enum Type {
-		Text = 'text',
-		Photo = 'photo',
-		Video = 'video',
-		Audio = 'audio',
-		Quote = 'quote',
-		None = 'none'
-	}
-
-	interface PostType extends Post {
-		files?: string[];
-		type: string;
-	}
-	export let post: Partial<PostType>;
+	export let post: Partial<PostWithFiles>;
 	const deletePost = async () => {
 		await fetch('/', { method: 'DELETE', body: JSON.stringify({ id: post.id }) });
 		invalidate('/');
@@ -36,15 +23,15 @@
 			<div class="post-text">{@html post.text}</div>
 		{/if}
 	{/if}
-	{#if post.type === 'photo'}
+	{#if post.type === 'photo' && post.files && post.files.length}
 		{#each post.files as photo}
 			<Image id={photo} />
 		{/each}
-	{:else if post.type === 'video'}
+	{:else if post.type === 'video' && post.files && post.files.length}
 		{#each post.files as video}
 			<Video id={video} />
 		{/each}
-	{:else if post.type === 'audio'}
+	{:else if post.type === 'audio' && post.files && post.files.length}
 		{#each post.files as audio}
 			<Audio id={audio} />
 		{/each}
