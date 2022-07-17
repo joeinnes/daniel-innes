@@ -5,7 +5,7 @@ import jwt from "$lib/auth/jwt";
 import { db } from "$lib/db/db";
 import { serialize } from "cookie";
 
-export const get = async ({ locals }: CustomRequestEvent) => {
+export const GET = async ({ locals }: CustomRequestEvent) => {
   if (locals && locals.user) {
     return {
       status: 302,
@@ -19,7 +19,7 @@ export const get = async ({ locals }: CustomRequestEvent) => {
   }
 }
 
-export const post = async ({ request }: CustomRequestEvent) => {
+export const POST = async ({ request }: CustomRequestEvent) => {
   try {
     const submittedData = await request.formData();
     const email = submittedData.get('email');

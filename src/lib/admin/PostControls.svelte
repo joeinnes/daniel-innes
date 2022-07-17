@@ -51,8 +51,4 @@
 	.button-panel {
 		@apply flex justify-between my-8 gap-4 items-center;
 	}
-
-	.action-button-emerald {
-		@apply bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/20 shadow-lg;
-	}
 </style>

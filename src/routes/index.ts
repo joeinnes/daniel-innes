@@ -1,5 +1,5 @@
 import { db } from '$lib/db/db';
-import { type Post, type File, Prisma } from '@prisma/client';
+import type { Post, File, Prisma } from '@prisma/client';
 
 import type { CustomRequestEvent } from '$lib/types/types';
 import sanitizeHtml from 'sanitize-html';
@@ -13,7 +13,7 @@ enum Role {
 
 const limit = parseInt((process.env.POSTS_PER_PAGE || '15'), 10);
 
-export const get = async ({ url, locals }: CustomRequestEvent) => {
+export const GET = async ({ url, locals }: CustomRequestEvent) => {
   const { user } = locals;
   const page = parseInt((url?.searchParams.get('page') || '1'), 10);
   let query: Prisma.PostWhereInput = { visibility: Role.Public };
@@ -47,7 +47,7 @@ export const get = async ({ url, locals }: CustomRequestEvent) => {
         allowedAttributes: { img: ['src', 'srcset', 'alt', 'title', 'width', 'height', 'loading'], a: ['href', 'target'] },
       })
     }
-    post.files = post.files.map(el => el.s3id);
+    post.files = post.files.map((el: File) => el.s3id);
     return post;
   });
 
@@ -56,7 +56,7 @@ export const get = async ({ url, locals }: CustomRequestEvent) => {
   }
 }
 
-export const post = async ({ request, locals }: CustomRequestEvent) => {
+export const POST = async ({ request, locals }: CustomRequestEvent) => {
   const { user } = locals;
   if (user?.role !== Role.Admin) {
     throw new Error('Unauthorised');
@@ -96,7 +96,7 @@ export const post = async ({ request, locals }: CustomRequestEvent) => {
   };
 }
 
-export const patch = async ({ request, locals }: CustomRequestEvent) => {
+export const PATCH = async ({ request, locals }: CustomRequestEvent) => {
   try {
     const { user } = locals;
     if (user?.role !== Role.Admin) {
@@ -151,7 +151,7 @@ export const patch = async ({ request, locals }: CustomRequestEvent) => {
 
 }
 
-export const del = async ({ request, locals }: CustomRequestEvent) => {
+export const DELETE = async ({ request, locals }: CustomRequestEvent) => {
   try {
     const { user } = locals;
     if (user?.role !== Role.Admin) {

@@ -11,7 +11,7 @@ enum Type {
 }
 
 interface SerialisablePost extends Omit<Post, 'post_date'> {
-  post_date: string;
+  post_date: Date;
   files: string[];
   type: Type;
 }
@@ -22,7 +22,7 @@ const initialState = {
   type: Type.None,
   title: '',
   text: '',
-  post_date: now.toISOString().slice(0, -8),
+  post_date: now,
   visibility: 'friends',
   files: [],
   date_created: now,

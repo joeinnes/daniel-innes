@@ -4,7 +4,7 @@ import { db } from '$lib/db/db'
 import type { CustomRequestEvent } from '$lib/types/types';
 import type { ResponseBody } from '@sveltejs/kit';
 
-export const post = async ({ request, locals }: CustomRequestEvent) => {
+export const POST = async ({ request, locals }: CustomRequestEvent) => {
   let res: ResponseBody = {
     status: 200,
     body: []

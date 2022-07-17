@@ -3,8 +3,9 @@ import type { RequestEvent } from "@sveltejs/kit";
 import bcrypt from "bcryptjs";
 import jwt from "$lib/auth/jwt";
 import { db } from "$lib/db/db";
+import type { User } from "@prisma/client";
 
-export const get = async ({ locals }: RequestEvent) => {
+export const GET = async ({ locals }: RequestEvent & { locals: { user: User } }) => {
   if (locals && locals.user) {
     return {
       status: 302,
@@ -26,7 +27,7 @@ export const get = async ({ locals }: RequestEvent) => {
   return {};
 }
 
-export const post = async ({ request }: RequestEvent) => {
+export const POST = async ({ request }: RequestEvent) => {
   try {
     if (!process.env.ALLOW_REGISTRATION) {
       return {

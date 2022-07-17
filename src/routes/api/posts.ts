@@ -2,7 +2,7 @@ import { db } from '$lib/db/db'
 
 import type { Prisma } from '@prisma/client';
 
-export async function get() {
+export async function GET() {
   try {
     let posts: Prisma.PostFindManyArgs | [] = [];
     async function main() {

@@ -3,7 +3,6 @@
 	import Cog from '../icons/Cog.svelte';
 	export let id = '';
 	export let alt = '';
-	export let loading = false;
 	let failed = false;
 	let loaded = false;
 	const imageLoaded = () => {
@@ -47,7 +46,7 @@
 <style lang="scss">
 	.image-container {
 		@apply flex flex-row items-center space-x-2 bg-gray-400 relative;
-		image {
+		img {
 			@apply aspect-square object-contain;
 		}
 		.disconnect {

@@ -44,10 +44,14 @@
 		const res = await fetch('/api/upload', { method: 'POST', body: form });
 		const resJson = await res.json();
 
-		if (Array.isArray(resJson)) {
+		if (Array.isArray(resJson) && Array.isArray($currentPost.files)) {
 			$currentPost.files = [...$currentPost.files, ...resJson];
-		} else {
+		} else if (Array.isArray($currentPost.files)) {
 			$currentPost.files = [...$currentPost.files, resJson];
+		} else {
+			throw new Error(
+				'Something odd happened when trying to see files attached to the current post'
+			);
 		}
 		loading = false;
 	};
@@ -96,7 +100,7 @@
 	}
 	$: shouldDisable = submitting || loading;
 	$: {
-		if ($currentPost.id > 0) {
+		if ($currentPost.id !== undefined && $currentPost?.id > 0) {
 			edit = true;
 		} else {
 			edit = false;
@@ -111,7 +115,7 @@
 	style="transform: scale({$dialogSize}); opacity:{$dialogOpacity}"
 >
 	<article class="rounded" on:click|stopPropagation>
-		<header class={backgrounds[$currentPost.type]}>
+		<header class={$currentPost.type && backgrounds[$currentPost.type]}>
 			<div class="container">
 				<h2 class="capitalize">
 					{edit ? 'Edit' : 'New'}
@@ -148,12 +152,14 @@
 
 					{#if $currentPost?.files?.length || loading}
 						<div class="preview-grid">
-							{#each $currentPost.files as file}
-								<PreviewImage id={file} />
-							{/each}
+							{#if $currentPost?.files?.length}
+								{#each $currentPost.files as file}
+									<PreviewImage id={file} />
+								{/each}
+							{/if}
 
 							{#if loading}
-								<PreviewImage {loading} />
+								<PreviewImage />
 							{/if}
 
 							<div class="new-image">
@@ -247,14 +253,14 @@
 				}
 
 				.new-image {
-					@apply flex flex-row items-center justify-center space-x-2 aspect-square w-full bg-gray-700;
+					@apply flex flex-row items-center justify-center gap-2 aspect-square w-full bg-gray-700;
 					span {
 						@apply text-6xl text-gray-50;
 					}
 				}
 
 				.empty-state {
-					@apply flex flex-col space-y-2 items-center justify-center;
+					@apply flex flex-col gap-2 items-center justify-center;
 				}
 			}
 

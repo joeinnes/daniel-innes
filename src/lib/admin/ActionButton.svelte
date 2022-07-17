@@ -1,6 +1,8 @@
 <script lang="ts">
+	import type { SvelteComponentTyped } from 'svelte';
+
 	import type { SvelteComponent } from 'svelte';
-	export let Icon: SvelteComponent;
+	export let Icon: typeof SvelteComponent;
 	export let clickHandler = () => {};
 	export let colour = 'emerald';
 </script>

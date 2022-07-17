@@ -1,14 +1,27 @@
 <script lang="ts">
 	import Post from '$lib/components/Post.svelte';
 
-	import type { User } from '@prisma/client';
+	import type { Post as PostType, User } from '@prisma/client';
 
 	import PostControls from '$lib/admin/PostControls.svelte';
 	import postsStore from '$lib/stores/posts';
-	import type { PostWithFiles } from '$lib/stores/posts';
+
+	enum Type {
+		Text = 'text',
+		Photo = 'photo',
+		Video = 'video',
+		Audio = 'audio',
+		Quote = 'quote',
+		None = 'none'
+	}
+
+	interface PostsType extends PostType {
+		files?: string[];
+		type: string;
+	}
 
 	export let user: User | null;
-	export let posts: PostWithFiles[];
+	export let posts: Partial<PostsType>[];
 
 	let page = 1;
 	let canPost = user?.role === 'admin';
@@ -22,7 +35,7 @@
 			}
 		});
 		const data: {
-			posts: PostWithFiles[];
+			posts: Partial<PostsType>[];
 			user: User;
 		} = await res.json();
 		posts = [...$postsStore, ...data.posts];

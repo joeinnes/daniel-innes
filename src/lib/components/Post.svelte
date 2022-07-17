@@ -5,8 +5,21 @@
 	import type { Post } from '@prisma/client';
 	import { currentPost, resetCurrentPost } from '$lib/stores/currentPost';
 	import { invalidate } from '$app/navigation';
-	export let post: Post & { files: string[] };
 
+	enum Type {
+		Text = 'text',
+		Photo = 'photo',
+		Video = 'video',
+		Audio = 'audio',
+		Quote = 'quote',
+		None = 'none'
+	}
+
+	interface PostType extends Post {
+		files?: string[];
+		type: string;
+	}
+	export let post: Partial<PostType>;
 	const deletePost = async () => {
 		await fetch('/', { method: 'DELETE', body: JSON.stringify({ id: post.id }) });
 		invalidate('/');
@@ -54,51 +67,6 @@
 </article>
 
 <style lang="scss">
-	section {
-		@apply font-sans;
-	}
-
-	.button-panel {
-		@apply grid grid-cols-5 my-8 gap-4 items-center;
-	}
-
-	.action-button-emerald {
-		@apply bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/20 shadow-lg;
-	}
-	.styleable-backdrop {
-		@apply fixed top-0 left-0 right-0 bottom-0 bg-gray-900 pointer-events-none z-10;
-	}
-	dialog {
-		@apply rounded p-0 max-w-prose w-full;
-		&::backdrop {
-			@apply hidden;
-		}
-
-		header {
-			@apply shadow-lg;
-			.container {
-				@apply p-8 flex justify-between items-center;
-				h2 {
-					@apply font-bold text-3xl;
-				}
-				.close-button {
-					@apply px-2 text-4xl focus:outline-none active:outline-none;
-				}
-			}
-		}
-
-		footer {
-			@apply p-4;
-
-			.container {
-				@apply flex w-full gap-2;
-			}
-		}
-	}
-	.content {
-		@apply p-4;
-	}
-
 	.post {
 		@apply relative my-8 font-serif;
 		.post-title {
