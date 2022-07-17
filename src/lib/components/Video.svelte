@@ -2,21 +2,26 @@
 	export let id = '';
 	let show = false;
 	import Cog from '$lib/icons/Cog.svelte';
+	import viewport from '$lib/actions/useViewportAction';
+
+	let load = false;
 </script>
 
-{#if show || import.meta.env.VITE_AUTOPLAY_VIDEOS === 'true'}
-	<video
-		src="{import.meta.env.VITE_ASSET_BASE_PATH}/files/{id}"
-		class="post-video"
-		controls
-		autoplay
-		muted
-	/>
-{:else}
-	<div class="video-placeholder" on:click={() => (show = true)}>
-		<Cog classToApply="h-16 w-16 stroke-1 stroke-emerald-700" />
-	</div>
-{/if}
+<div use:viewport on:enterViewport={() => (load = true)}>
+	{#if load}
+		<video
+			src="{import.meta.env.VITE_ASSET_BASE_PATH}/files/{id}"
+			class="post-video"
+			controls
+			autoplay
+			muted
+		/>
+	{:else}
+		<div class="video-placeholder" on:click={() => (load = true)}>
+			<Cog classToApply="h-16 w-16 stroke-1 stroke-emerald-700" />
+		</div>
+	{/if}
+</div>
 
 <style lang="scss">
 	.video-placeholder {
