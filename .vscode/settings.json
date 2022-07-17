@@ -1,6 +1,7 @@
 {
   "conventionalCommits.scopes": [
     "upstream",
-    "admin"
+    "admin",
+    "buttons"
   ]
 }

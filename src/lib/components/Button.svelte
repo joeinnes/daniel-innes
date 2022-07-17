@@ -46,6 +46,10 @@
 		@apply bg-red-200 text-red-900 hover:bg-red-400 hover:shadow-red-600/20;
 	}
 
+	.button-transparent {
+		@apply bg-transparent text-gray-300 hover:bg-gray-500 hover:shadow-gray-600/20;
+	}
+
 	.button-disabled {
 		@apply button-gray cursor-not-allowed;
 	}

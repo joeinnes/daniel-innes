@@ -4,7 +4,10 @@
 	import type { Post as PostType, User } from '@prisma/client';
 
 	import PostControls from '$lib/admin/PostControls.svelte';
+	import Button from '$lib/components/Button.svelte';
 	import postsStore from '$lib/stores/posts';
+	import viewport from '$lib/actions/useViewportAction';
+	import { goto } from '$app/navigation';
 
 	enum Type {
 		Text = 'text',
@@ -25,6 +28,7 @@
 
 	let page = 1;
 	let canPost = user?.role === 'admin';
+	let canLoadMore = true;
 
 	$postsStore = posts;
 	const loadMore = async function () {
@@ -38,13 +42,21 @@
 			posts: Partial<PostsType>[];
 			user: User;
 		} = await res.json();
+		if (!data.posts.length) {
+			canLoadMore = false;
+		}
 		posts = [...$postsStore, ...data.posts];
 	};
 	$: $postsStore = posts;
 </script>
 
 <div>
-	<a href="/"><h1 class="page-title">{import.meta.env.VITE_SITE_NAME}</h1></a>
+	<div class="flex justify-between items-center">
+		<a href="/"><h1 class="page-title">{import.meta.env.VITE_SITE_NAME}</h1></a>
+		{#if user}
+			<Button clickHandler={() => goto('/auth/logout')} colour="transparent">Log out</Button>
+		{/if}
+	</div>
 	{#if canPost}
 		<PostControls />
 	{/if}
@@ -54,10 +66,11 @@
 	{:else}
 		<article class="empty-state">No posts found.</article>
 	{/each}
-	<button on:click={loadMore}>Load More</button>
-	{#if user}
-		<a href="/auth/logout">Log out</a>
-	{/if}
+	<div use:viewport on:enterViewport={loadMore} class="flex justify-center">
+		<Button on:click={loadMore} colour="emerald" disabled={!canLoadMore}
+			>{#if canLoadMore}Load More{:else}No more posts!{/if}</Button
+		>
+	</div>
 </div>
 
 <style lang="scss">
